@@ -70,6 +70,12 @@ class BayesClassifier:
              print(f"Training on file {index} of {len(files)}")
         #     <the rest of your code for updating frequencies here>
              text = self.load_file(os.path.join(self.training_data_directory, filename))
+             token = self.tokenize(text)
+
+             if filename.startswith(self.pos_file_prefix):
+                 self.update_dict(token, self.pos_freqs)
+             elif filename.startswith(self.neg_file_prefix):
+                 self.update_dict(token, self.neg_freqs)
 
         # we want to fill pos_freqs and neg_freqs with the correct counts of words from
         # their respective reviews
@@ -99,6 +105,9 @@ class BayesClassifier:
         # are saving are self.pos_freqs and self.neg_freqs and the filepaths to save to
         # are self.pos_filename and self.neg_filename
 
+        self.save_dict(self.pos_freqs, self.pos_filename)
+        self.save_dict(self.neg_freqs, self.neg_filename)
+
     def classify(self, text: str) -> str:
         """Classifies given text as positive, negative or neutral from calculating the
         most likely document class to which the target string belongs
@@ -110,7 +119,7 @@ class BayesClassifier:
             classification, either positive, negative or neutral
         """
         # TODO: fill me out
-
+     
         
         # get a list of the individual tokens that occur in text
         
@@ -222,7 +231,12 @@ class BayesClassifier:
             freqs - dictionary of frequencies to update
         """
         # TODO: your work here
-        pass  # remove this line once you've implemented this method
+        
+        for word in words:
+            if word in freqs:
+                freqs[word] += 1
+            else: 
+                freqs[word] = 1
 
 
 if __name__ == "__main__":
