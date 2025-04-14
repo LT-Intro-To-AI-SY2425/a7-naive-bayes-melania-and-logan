@@ -66,16 +66,16 @@ class BayesClassifier:
         # enumerate function, which loops over something and has an automatic counter.
         # write something like this to track progress (note the `# type: ignore` comment
         # which tells mypy we know better and it shouldn't complain at us on this line):
-         for index, filename in enumerate(files, 1): # type: ignore
-             print(f"Training on file {index} of {len(files)}")
+        for index, filename in enumerate(files, 1): # type: ignore
+            print(f"Training on file {index} of {len(files)}")
         #     <the rest of your code for updating frequencies here>
-             text = self.load_file(os.path.join(self.training_data_directory, filename))
-             token = self.tokenize(text)
+            text = self.load_file(os.path.join(self.training_data_directory, filename))
+            token = self.tokenize(text)
 
-             if filename.startswith(self.pos_file_prefix):
-                 self.update_dict(token, self.pos_freqs)
-             elif filename.startswith(self.neg_file_prefix):
-                 self.update_dict(token, self.neg_freqs)
+            if filename.startswith(self.pos_file_prefix):
+                self.update_dict(token, self.pos_freqs)
+            elif filename.startswith(self.neg_file_prefix):
+                self.update_dict(token, self.neg_freqs)
 
         # we want to fill pos_freqs and neg_freqs with the correct counts of words from
         # their respective reviews
@@ -135,14 +135,21 @@ class BayesClassifier:
         # (i.e. how many words occurred in all documents for the given class) - this
         # will be used in calculating the probability of each document class given each
         # individual feature
-        
+        pos_total = sum(self.pos_freqs.values())
+        neg_total = sum(self.neg_freqs.values())
+
 
         # for each token in the text, calculate the probability of it occurring in a
         # postive document and in a negative document and add the logs of those to the
         # running sums. when calculating the probabilities, always add 1 to the numerator
         # of each probability for add one smoothing (so that we never have a probability
         # of 0)
+        for token in tokens:
+            pos_freqs = self.pos_freqs.get(token, 0) + 1
+            neg_freqs = self.neg_freqs.get(token, 0) + 1
 
+            pos_score += math.log(pos_freqs / pos_total)
+            neg_score += math.log(neg_freqs / neg_total)
 
         # for debugging purposes, it may help to print the overall positive and negative
         # probabilities
@@ -150,7 +157,10 @@ class BayesClassifier:
 
         # determine whether positive or negative was more probable (i.e. which one was
         # larger)
-        
+        if pos_score > neg_score:
+            return "positive"
+        else: 
+            return "negitive"
 
         # return a string of "positive" or "negative"
 
@@ -284,10 +294,10 @@ if __name__ == "__main__":
     print(f"P('terrible'| neg) {(b.neg_freqs['terrible']+1)/neg_denominator}")
 
     # # uncomment the below lines once you've implemented `classify`
-    # print("\nThe following should all be positive.")
-    # print(b.classify('I love computer science'))
-    # print(b.classify('this movie is fantastic'))
-    # print("\nThe following should all be negative.")
-    # print(b.classify('rainy days are the worst'))
-    # print(b.classify('computer science is terrible'))
+    print("\nThe following should all be positive.")
+    print(b.classify('I love computer science'))
+    print(b.classify('this movie is fantastic'))
+    print("\nThe following should all be negative.")
+    print(b.classify('rainy days are the worst'))
+    print(b.classify('computer science is terrible'))
     pass
