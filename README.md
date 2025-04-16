@@ -1,6 +1,3 @@
-Melania Herrera and Logan Kwan
-
-
 ---
 title: 'Assignment 7: Naïve Bayes Classifier'
 author: |
